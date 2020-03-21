@@ -10,7 +10,6 @@ extern void init();
 extern "C" {
 VADisplay vaGetDisplayDRM(int fd)
 {
-    init();
     return va_drm.GetDisplayDRM(fd);
 }
 } // extern "C"

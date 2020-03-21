@@ -9,7 +9,6 @@ extern "C" {
 
 VADisplay vaGetDisplay(Display *dpy)
 {
-    init(); // must init to create display for almost all apis
     return va_x11.GetDisplay(dpy);
 }
 
@@ -30,7 +29,6 @@ VAStatus vaPutSurface (
     unsigned int flags /* PutSurface flags */
 )
 {
-    init();
     return va_x11.PutSurface(dpy, surface, draw, srcx, srcy, srcw, srch, destx, desty, destw, desth, cliprects, number_cliprects, flags);
 }
 
