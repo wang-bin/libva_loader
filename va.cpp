@@ -119,6 +119,10 @@ static void init()
     DLSYM_VA(EntrypointStr);
     DLSYM_VA(ConfigAttribTypeStr);
     DLSYM_VA(BufferTypeStr);
+
+    DLSYM_VA(QueryVideoProcFilters);
+    DLSYM_VA(QueryVideoProcFilterCaps);
+    DLSYM_VA(QueryVideoProcPipelineCaps);
 #undef DLSYM_VA
 #define DLSYM_VA(X) va_x11.X = (decltype(&va##X))dlsym(libva_x11, "va" #X)
     DLSYM_VA(GetDisplay);
@@ -562,4 +566,18 @@ const char *vaStatusStr(VAStatus status)
         return "";
     return va.StatusStr(status);
 }*/
+VAStatus vaQueryVideoProcFilters(VADisplay dpy, VAContextID context, VAProcFilterType *filters, unsigned int *num_filters)
+{
+    return va.QueryVideoProcFilters(dpy, context, filters, num_filters);
+}
+
+VAStatus vaQueryVideoProcFilterCaps(VADisplay dpy, VAContextID context, VAProcFilterType type, void *filter_caps, unsigned int *num_filter_caps)
+{
+    return va.QueryVideoProcFilterCaps(dpy, context, type, filter_caps, num_filter_caps);
+}
+
+VAStatus vaQueryVideoProcPipelineCaps(VADisplay dpy, VAContextID context, VABufferID *filters, unsigned int num_filters, VAProcPipelineCaps *pipeline_caps)
+{
+    return va.QueryVideoProcPipelineCaps(dpy, context, filters, num_filters, pipeline_caps);
+}
 } // extern "C"

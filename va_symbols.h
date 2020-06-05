@@ -89,6 +89,10 @@ struct va_t {
     decltype(&vaConfigAttribTypeStr) ConfigAttribTypeStr = nullptr;
     decltype(&vaBufferTypeStr) BufferTypeStr = nullptr;
     //decltype(&vaStatusStr) StatusStr = nullptr;
+// va_vpp.h
+    decltype(&vaQueryVideoProcFilters) QueryVideoProcFilters = nullptr;
+    decltype(&vaQueryVideoProcFilterCaps) QueryVideoProcFilterCaps = nullptr;
+    decltype(&vaQueryVideoProcPipelineCaps) QueryVideoProcPipelineCaps = nullptr;
 };
 
 struct va_x11_t {
