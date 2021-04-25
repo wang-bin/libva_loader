@@ -1,7 +1,7 @@
 #
 SYSROOT := /
-TRIPLE := x86_64-linux-gnu
-LLVM_VER := 10
+TRIPLE := x86_64-linux-gnu # aarch64-linux-gnu, arm-linux-gnueabihf
+LLVM_VER := 12
 CC := clang-$(LLVM_VER)
 AR := llvm-ar-$(LLVM_VER)
 RANLIB := llvm-ranlib-$(LLVM_VER)
@@ -14,10 +14,17 @@ VA_OBJS = va.o
 VA_X11_OBJS = va_x11.o
 VA_DRM_OBJS = va_drm.o
 
+VDPAU_OBJS = vdpau.o
+
 %.o: %.cpp
 	$(CC) $(CFLAGS) -c $^
 
-all: libva.a libva-x11.a libva-drm.a #libva.so
+all: libvdpau.a libva.a libva-x11.a libva-drm.a #libva.so
+
+
+libvdpau.a: $(VDPAU_OBJS)
+	$(AR) -rc $@ $^
+	$(RANLIB) $@
 
 libva.a: $(VA_OBJS)
 	$(AR) -rc $@ $^
@@ -35,4 +42,4 @@ libva.so: $(VA_OBJS) $(VA_X11_OBJS) $(VA_DRM_OBJS)
 	$(CC) -shared $(LFLAGS) -o $@ $^
 
 clean:
-	rm -f $(VA_OBJS) $(VA_X11_OBJS) $(VA_DRM_OBJS) libva.a libva-x11.a libva-drm.a #libva.so
+	rm -f $(VDPAU_OBJS) $(VA_OBJS) $(VA_X11_OBJS) $(VA_DRM_OBJS) libvdpau.a libva.a libva-x11.a libva-drm.a #libva.so
