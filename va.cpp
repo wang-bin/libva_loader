@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 WangBin <wbsecg1 at gmail.com>
+ * Copyright (c) 2020-2022 WangBin <wbsecg1 at gmail.com>
  */
 #include "va_symbols.h"
 #include <dlfcn.h>
@@ -119,6 +119,8 @@ static void init()
     DLSYM_VA(EntrypointStr);
     DLSYM_VA(ConfigAttribTypeStr);
     DLSYM_VA(BufferTypeStr);
+
+    DLSYM_VA(SyncBuffer);
 
     DLSYM_VA(QueryVideoProcFilters);
     DLSYM_VA(QueryVideoProcFilterCaps);
@@ -566,6 +568,16 @@ const char *vaStatusStr(VAStatus status)
         return "";
     return va.StatusStr(status);
 }*/
+
+#if VA_CHECK_VERSION(1, 9, 0)
+VAStatus vaSyncBuffer(VADisplay dpy, VABufferID buf_id, uint64_t timeout_ns)
+{
+    if (!va.SyncBuffer)
+        return VA_STATUS_ERROR_UNIMPLEMENTED;
+    return va.SyncBuffer(dpy, buf_id, timeout_ns);
+}
+#endif
+
 VAStatus vaQueryVideoProcFilters(VADisplay dpy, VAContextID context, VAProcFilterType *filters, unsigned int *num_filters)
 {
     return va.QueryVideoProcFilters(dpy, context, filters, num_filters);

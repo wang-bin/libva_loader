@@ -1,10 +1,11 @@
 #
 SYSROOT := /
 TRIPLE := x86_64-linux-gnu # aarch64-linux-gnu, arm-linux-gnueabihf
-LLVM_VER := 12
+LLVM_VER := 13
+
 CC := clang-$(LLVM_VER)
-AR := llvm-ar-$(LLVM_VER)
-RANLIB := llvm-ranlib-$(LLVM_VER)
+AR := $(shell $(CC) -print-prog-name=llvm-ar)
+RANLIB := $(shell $(CC) -print-prog-name=llvm-ranlib)
 
 STATIC_CFLAGS = -fvisibility=hidden -fvisibility-inlines-hidden
 CFLAGS=--target=$(TRIPLE) --sysroot=$(SYSROOT) -O2 -fPIC $(STATIC_CFLAGS) -Wformat -Werror=format-security -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -ffunction-sections -fdata-sections

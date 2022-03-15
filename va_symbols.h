@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 WangBin <wbsecg1 at gmail.com>
+ * Copyright (c) 2020-2022 WangBin <wbsecg1 at gmail.com>
  */
 #pragma once
 
@@ -89,6 +89,10 @@ struct va_t {
     decltype(&vaConfigAttribTypeStr) ConfigAttribTypeStr = nullptr;
     decltype(&vaBufferTypeStr) BufferTypeStr = nullptr;
     //decltype(&vaStatusStr) StatusStr = nullptr;
+
+#if VA_CHECK_VERSION(1, 9, 0)
+    decltype(&vaSyncBuffer) SyncBuffer = nullptr;
+#endif
 // va_vpp.h
     decltype(&vaQueryVideoProcFilters) QueryVideoProcFilters = nullptr;
     decltype(&vaQueryVideoProcFilterCaps) QueryVideoProcFilterCaps = nullptr;
