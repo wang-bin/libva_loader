@@ -1,9 +1,8 @@
 /*
- * Copyright (c) 2021 WangBin <wbsecg1 at gmail.com>
+ * Copyright (c) 2021-2023 WangBin <wbsecg1 at gmail.com>
  */
 #include "vdpau_symbols.h"
 #include <cstdio>
-#include <cstdlib>
 #include <dlfcn.h>
 //#include <pthread.h>
 

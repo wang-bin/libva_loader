@@ -1,21 +1,26 @@
 /*
- * Copyright (c) 2020-2022 WangBin <wbsecg1 at gmail.com>
+ * Copyright (c) 2020-2023 WangBin <wbsecg1 at gmail.com>
  */
 #pragma once
 
 extern "C" {
-#include <va/va_drm.h>
-#if VA_CHECK_VERSION(0, 36, 0) //  vaapi 0.36, libva 1.4
-# include <va/va_drmcommon.h> /* VA_SURFACE_ATTRIB_MEM_TYPE_DRM_PRIME*/
-#endif
-#if VA_CHECK_VERSION(1, 0, 0)
-# include <va/va_str.h>
-#endif
-#if (VAAPI_DYLOAD+0)
-#include <X11/Xlib.h>
+#if (_WIN32 + 0)
+# include <va/va_win32.h>
 #else
-#include <va/va_x11.h> // why ambiguous vaGetDisplay()?
-#endif
+# include <va/va_drm.h>
+# if VA_CHECK_VERSION(0, 36, 0) //  vaapi 0.36, libva 1.4
+#   include <va/va_drmcommon.h> /* VA_SURFACE_ATTRIB_MEM_TYPE_DRM_PRIME*/
+# endif
+# if VA_CHECK_VERSION(1, 0, 0)
+#   include <va/va_str.h>
+# endif
+# if (VAAPI_DYLOAD+0)
+#   include <X11/Xlib.h>
+# else
+#   include <va/va_x11.h> // why ambiguous vaGetDisplay()?
+# endif
+#endif // (_WIN32 + 0)
+#include <va/va_str.h>
 }
 
 struct va_t {
@@ -99,6 +104,11 @@ struct va_t {
     decltype(&vaQueryVideoProcPipelineCaps) QueryVideoProcPipelineCaps = nullptr;
 };
 
+#if (_WIN32 + 0)
+struct va_win32_t {
+    decltype(&vaGetDisplayWin32) GetDisplayWin32 = nullptr;
+};
+#else
 struct va_x11_t {
     decltype(&vaGetDisplay) GetDisplay = nullptr;
     decltype(&vaPutSurface) PutSurface = nullptr;
@@ -107,3 +117,4 @@ struct va_x11_t {
 struct va_drm_t {
     decltype(&vaGetDisplayDRM) GetDisplayDRM = nullptr;
 };
+#endif

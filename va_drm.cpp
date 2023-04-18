@@ -1,9 +1,7 @@
 /*
- * Copyright (c) 2020 WangBin <wbsecg1 at gmail.com>
+ * Copyright (c) 2020-2023 WangBin <wbsecg1 at gmail.com>
  */
 #include "va_symbols.h"
-#include <cstdio>
-#include <cstdlib>
 extern va_drm_t va_drm;
 extern void init();
 

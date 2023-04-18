@@ -1,20 +1,55 @@
 /*
- * Copyright (c) 2020-2022 WangBin <wbsecg1 at gmail.com>
+ * Copyright (c) 2020-2023 WangBin <wbsecg1 at gmail.com>
  */
 #include "va_symbols.h"
-#include <dlfcn.h>
-#include <pthread.h>
 #include <cstdio>
+#if defined(_WIN32)
+# ifndef UNICODE
+#   define UNICODE 1
+# endif
+# include <windows.h>
+# ifdef WINAPI_FAMILY
+#  include <winapifamily.h>
+#  if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+#    define VA_WINRT 1
+#  endif
+# endif
+# if (VA_WINRT+0)
+#   define dlopen(filename, flags) LoadPackagedLibrary(filename, 0)
+# else
+#   define dlopen(filename, flags) LoadLibrary(filename)
+# endif
+# define dlsym(handle, symbol) GetProcAddress((HMODULE)handle, symbol)
+# define dlclose(handle) FreeLibrary((HMODULE)handle)
+//#elif defined(__APPLE__) // uncomment the following lines if use framework
+//# define dlopen(filename, flags) load_bundle(filename)
+//# define dlsym(handle, symbol) ((handle) ? CFBundleGetFunctionPointerForName(handle, CFSTR(symbol)) : nullptr)
+//# define dlclose(handle) CFRelease(handle)
+#else
+# include <dlfcn.h>
+#endif
 
 static void* libva = nullptr;
+#if (_WIN32 + 0)
+static void* libva_win32 = nullptr;
+#else
 static void* libva_x11 = nullptr;
 static void* libva_drm = nullptr;
 
 _Pragma("weak dlopen") // so no need link to libdl directly, no libva.pc change
 _Pragma("weak dlsym") // so no need link to libdl directly, no libva.pc change
+#endif
 
 static void load_va()
 {
+#if (_WIN32 + 0)
+    libva = dlopen(TEXT("va.dll"), RTLD_LAZY|RTLD_LOCAL);
+    if (!libva) {
+        printf("failed to open va.dll\n");
+        return;
+    }
+    libva_win32 = dlopen(TEXT("va_win32.dll"), RTLD_LAZY|RTLD_LOCAL);
+#else
     static int v = 2;
     libva = dlopen("libva.so.2", RTLD_LAZY|RTLD_LOCAL);
     if (!libva) {
@@ -31,17 +66,30 @@ static void load_va()
     libva_x11 = dlopen(va_name, RTLD_LAZY|RTLD_LOCAL);
     std::snprintf(va_name, sizeof(va_name), "libva-drm.so.%d", v);
     libva_drm = dlopen(va_name, RTLD_LAZY|RTLD_LOCAL);
+#endif
 }
 
 static va_t va;
+#if (_WIN32 + 0)
+va_win32_t va_win32;
+#else
 va_x11_t va_x11;
 va_drm_t va_drm;
+#endif
+//static pthread_once_t init_flag = PTHREAD_ONCE_INIT;
+//_Pragma("weak pthread_once") // so no need link to pthread directly, no libva.pc change
 
-static pthread_once_t init_flag = PTHREAD_ONCE_INIT;
-_Pragma("weak pthread_once") // so no need link to pthread directly, no libva.pc change
+#if defined(_MSC_VER)
+# define INIT_FUNC(f) \
+    static void f(); \
+    static const auto f##_v = []() noexcept { f(); return 0;}(); \
+    static void f()
+#else
+# define INIT_FUNC(f) \
+    __attribute__((constructor, used)) static void f()
+#endif
 
-__attribute__((constructor))
-static void init()
+INIT_FUNC(init)
 {
     if (va.Initialize)
         return;
@@ -125,6 +173,12 @@ static void init()
     DLSYM_VA(QueryVideoProcFilters);
     DLSYM_VA(QueryVideoProcFilterCaps);
     DLSYM_VA(QueryVideoProcPipelineCaps);
+
+#if (_WIN32 + 0)
+#undef DLSYM_VA
+#define DLSYM_VA(X) va_win32.X = (decltype(&va##X))dlsym(libva_win32, "va" #X)
+    DLSYM_VA(GetDisplayWin32);
+#else
 #undef DLSYM_VA
 #define DLSYM_VA(X) va_x11.X = (decltype(&va##X))dlsym(libva_x11, "va" #X)
     DLSYM_VA(GetDisplay);
@@ -132,6 +186,7 @@ static void init()
 #undef DLSYM_VA
 #define DLSYM_VA(X) va_drm.X = (decltype(&va##X))dlsym(libva_drm, "va" #X)
     DLSYM_VA(GetDisplayDRM);
+#endif
 }
 
 extern "C" {
