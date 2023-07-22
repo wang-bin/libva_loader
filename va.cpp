@@ -45,7 +45,6 @@ static void load_va()
 #if (_WIN32 + 0)
     libva = dlopen(TEXT("va.dll"), RTLD_LAZY|RTLD_LOCAL);
     if (!libva) {
-        printf("failed to open va.dll\n");
         return;
     }
     libva_win32 = dlopen(TEXT("va_win32.dll"), RTLD_LAZY|RTLD_LOCAL);
